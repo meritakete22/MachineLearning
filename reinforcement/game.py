@@ -25,6 +25,9 @@ import time
 import os
 import traceback
 import sys
+import random
+
+from util import flipCoin
 
 #######################
 # Parts worth reading #
@@ -47,7 +50,15 @@ class Agent:
         The Agent will receive a GameState (from either {pacman, capture, sonar}.py) and
         must return an action from Directions.{North, South, East, West, Stop}
         """
-        raiseNotDefined()
+        print("STATE: ", state)
+        legalActions = state.getLegalActions()
+        if not legalActions:
+            return None
+
+        if flipCoin(self.epsilon):
+            return random.choice(legalActions)
+        else:
+            return self.computeActionFromQValues(state)
 
 
 class Directions:

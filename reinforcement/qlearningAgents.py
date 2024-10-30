@@ -15,7 +15,7 @@
 from game import *
 from learningAgents import ReinforcementAgent
 from featureExtractors import *
-
+from util import flipCoin
 import random,util,math
 
 class QLearningAgent(ReinforcementAgent):
@@ -63,7 +63,11 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        legalActions = self.getLegalActions(state)
+        if len(legalActions) == 0:
+            return 0.0
+        else:
+          return max([self.getQValue(state, action) for action in legalActions])
 
     def computeActionFromQValues(self, state):
         """
@@ -72,7 +76,11 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        legalActions = self.getLegalActions(state)
+        if len(legalActions) == 0:
+            return None
+        else:
+            return max(legalActions, key=lambda action: self.getQValue(state, action))
 
     def getAction(self, state):
         """
@@ -87,11 +95,14 @@ class QLearningAgent(ReinforcementAgent):
         """
         # Pick Action
         legalActions = self.getLegalActions(state)
-        action = None
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if not legalActions:
+            return None
 
-        return action
+        if flipCoin(self.epsilon):
+            return random.choice(legalActions)
+        else:
+            return self.computeActionFromQValues(state)
+
 
     def update(self, state, action, nextState, reward):
         """
@@ -103,7 +114,16 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # Max Q-value for the next state
+        maxValue = self.computeValueFromQValues(nextState)
+        # Current Q-value
+        Qvalue = self.getQValue(state, action)
+        # Q-value correction
+        correction = (reward + self.discount * maxValue - Qvalue)
+
+        # Actualizamos Q(state, action) usando la tasa de aprendizaje α
+        self.Qvalues[(state, action)] = Qvalue + self.alpha * correction
+
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
